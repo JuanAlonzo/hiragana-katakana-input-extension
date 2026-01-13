@@ -184,12 +184,16 @@ if (typeof window.wanakanaExtensionInyectado === "undefined") {
   }
 
   function aplicarWanakanaDeTodos() {
-    const inputs = document.querySelectorAll("input[type='text'], textarea");
+    const inputs = document.querySelectorAll(
+      "input[type='text'], input[type='search'],  textarea"
+    );
     inputs.forEach(bindInput);
   }
 
   function removerWanakanaDeTodos() {
-    const inputs = document.querySelectorAll('input[type="text"], textarea');
+    const inputs = document.querySelectorAll(
+      'input[type="text"], input[type="search"], textarea'
+    );
     inputs.forEach((input) => {
       if (input.dataset.wanakanaBound) {
         wanakana.unbind(input);
@@ -226,7 +230,7 @@ if (typeof window.wanakanaExtensionInyectado === "undefined") {
               bindInput(node);
             } else {
               const inputsInternos = node.querySelectorAll(
-                'input[type="text"], textarea'
+                'input[type="text"], input[type="search"], textarea'
               );
               inputsInternos.forEach(bindInput);
             }
