@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "WanaInput - Japonés Fácil",
+  "version": "0.1.2",
+  "description": "Metodo de entrada japonés que convierte romaji a hiragana/katakana y kanji usando Wanakana.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "action": {
+    "default_title": "Activar WanaKana"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
+}
