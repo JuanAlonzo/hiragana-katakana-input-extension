@@ -15,19 +15,33 @@ window.diccionarioPersonal = {
     せん: "千", // Mil
     まん: "万", // Diez mil
     ひゃく: "百", // Cien
+
+    はは: "母", // Madre
+    ちち: "父", // Padre
+    おとうさん: "お父さん", // Padre (formal)
+    おかあさん: "お母さん", // Madre (formal)
+    ねえさん: "姉さん", // Hermana mayor (formal)
+
     みせ: "店", // Tienda
     くに: "国", // País
     はな: "花", // Flor
+
     わたし: "私", // Yo
+    ぼく: "僕", // Yo (masculino)
+    おれ: "俺", // Yo (masculino, informal)
+
     ねこ: "猫", // Gato
+    いぬ: "犬", // Perro
+    ほん: "本", // Libro
+    ひと: "人", // Persona
+    き: "木", // Árbol
+
     にほん: "日本", // Japón
     さくら: "桜", // Cerezo
     くるま: "車", // Coche
-    いぬ: "犬", // Perro
     みず: "水", // Agua
     そら: "空", // Cielo
     つき: "月", // Luna
-    ひと: "人", // Persona
     かぜ: "風", // Viento
     やま: "山", // Montaña
     かわ: "川", // Río
@@ -43,8 +57,16 @@ window.diccionarioPersonal = {
     あした: "明日", // Mañana (día siguiente)
     きのう: "昨日", // Ayer
     た: "田", // Campo de arroz
+    だいがく: "大学", // Universidad
     やまだ: "山田", // Apellido Yamada
     たなか: "田中", // Apellido Tanaka
+    やまぐち: "山口", // Apellido Yamaguchi
+    なかやま: "中山", // Apellido Nakayama
+    とうきょう: "東京", // Tokio
+    きょうと: "京都", // Kioto
+
+    ほっかいどう: "北海道", // Hokkaido
+    ふじさん: "富士山", // Monte Fuji
   },
 
   // DICCIONARIO DE RAÍCES VERBALES (Coincidencia Parcial)

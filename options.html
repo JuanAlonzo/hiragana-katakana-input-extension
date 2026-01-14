@@ -4,70 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Diccionario Wanakana</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      width: 400px;
-    }
-
-    h2 {
-      border-bottom: 2px solid #ff69b4;
-      padding-bottom: 5px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    input,
-    select,
-    button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background: #ff69b4;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #e05297;
-    }
-
-    .word-list {
-      margin-top: 20px;
-      border-top: 1px solid #ddd;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .word-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .delete-btn {
-      background: #ff4444;
-      width: auto;
-      padding: 2px 8px;
-      margin: 0;
-      font-size: 0.8em;
-    }
-  </style>
+  <link rel="stylesheet" href="options.css">
 </head>
 
 <body>
   <h2>Diccionario Cloud</h2>
-
+  <div style="margin-bottom: 15px; text-align: right;">
+    <button id="btnExportar" style="width: auto; background: #2196F3;">⬇ Exportar Backup</button>
+    <button id="btnImportar" style="width: auto; background: #FF9800;">⬆ Importar Backup</button>
+    <input type="file" id="fileInput" style="display: none" accept=".json">
+  </div>
   <div class="form-group">
     <label>Hiragana / Raíz (Ej: はな)</label>
     <input type="text" id="inputClave" placeholder="Escribe en hiragana">

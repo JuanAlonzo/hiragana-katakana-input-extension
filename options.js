@@ -1,5 +1,86 @@
-document.addEventListener("DOMContentLoaded", cargarPalabras);
+document.addEventListener("DOMContentLoaded", () => {
+  cargarPalabras();
+  chequearParamsURL();
+});
+
 document.getElementById("btnGuardar").addEventListener("click", guardarPalabra);
+document.getElementById("btnExportar").addEventListener("click", exportarJSON);
+document
+  .getElementById("btnImportar")
+  .addEventListener("click", () =>
+    document.getElementById("fileInput").click()
+  );
+document.getElementById("fileInput").addEventListener("change", importarJSON);
+
+function chequearParamsURL() {
+  const params = new URLSearchParams(window.location.search);
+  const kanji = params.get("kanji");
+  if (kanji) {
+    document.getElementById("inputValor").value = kanji;
+    document.getElementById("inputClave").focus();
+    // Limpieza
+    window.history.replaceState({}, document.title, "options.html");
+  }
+}
+
+// Exportar e Importar JSON
+function exportarJSON() {
+  chrome.storage.sync.get(["diccionarioCloud"], (result) => {
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(result.diccionarioCloud));
+    const downloadAnchorNode = document.createElement("a");
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute(
+      "download",
+      "wanakana_backup_" + new Date().toISOString().slice(0, 10) + ".json"
+    );
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  });
+}
+
+function importarJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const contenido = JSON.parse(e.target.result);
+      if (!contenido.sustantivos || !contenido.raicesVerbos)
+        throw new Error("Formato inválido");
+
+      if (
+        confirm(
+          "¿Quieres fusionar este backup con tu diccionario actual? (Las palabras repetidas se actualizarán)"
+        )
+      ) {
+        chrome.storage.sync.get(["diccionarioCloud"], (result) => {
+          const actual = result.diccionarioCloud || {
+            sustantivos: {},
+            raicesVerbos: {},
+          };
+
+          // Fusión (Merge)
+          const nuevoDic = {
+            sustantivos: { ...actual.sustantivos, ...contenido.sustantivos },
+            raicesVerbos: { ...actual.raicesVerbos, ...contenido.raicesVerbos },
+          };
+
+          chrome.storage.sync.set({ diccionarioCloud: nuevoDic }, () => {
+            alert("¡Importación exitosa!");
+            cargarPalabras();
+          });
+        });
+      }
+    } catch (error) {
+      alert("Error al leer el archivo JSON: " + error.message);
+    }
+  };
+  reader.readAsText(file);
+}
 
 function cargarPalabras() {
   chrome.storage.sync.get(["diccionarioCloud"], (result) => {
