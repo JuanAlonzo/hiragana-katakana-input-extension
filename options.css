@@ -1,57 +1,110 @@
-body {
-  font-family: sans-serif;
-  padding: 20px;
-  width: 400px;
-}
+:root {
+      --primary: #ff69b4;
+      --primary-dark: #e05297;
+      --bg: #fdfdfd;
+      --surface: #ffffff;
+      --text: #333;
+      --gray: #f5f5f5;
+      --border: #eee;
+    }
 
-h2 {
-  border-bottom: 2px solid #ff69b4;
-  padding-bottom: 5px;
-}
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      width: 500px; /* Un poco más ancho para que respire */
+      height: 600px;
+    }
 
-.form-group {
-  margin-bottom: 15px;
-}
+    header {
+      background: var(--surface);
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-input,
-select,
-button {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  box-sizing: border-box;
-}
+    h2 { margin: 0; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 8px;}
 
-button {
-  background: #ff69b4;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
+    .container { padding: 20px; }
 
-button:hover {
-  background: #e05297;
-}
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
 
-.word-list {
-  margin-top: 20px;
-  border-top: 1px solid #ddd;
-  max-height: 300px;
-  overflow-y: auto;
-}
+    /* Inputs y Forms */
+    .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .form-group { flex: 1; }
+    
+    label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; font-weight: 600;}
+    
+    input, select {
+      width: 100%; box-sizing: border-box; padding: 10px;
+      border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--primary); }
 
-.word-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
-}
+    /* Botones */
+    .btn {
+      padding: 10px 15px; border: none; border-radius: 8px;
+      cursor: pointer; font-weight: 600; font-size: 0.9rem;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; justify-content: center;
+    }
+    .btn-primary { background: var(--primary); color: white; width: 100%; box-shadow: 0 2px 5px rgba(255, 105, 180, 0.3);}
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px);}
+    
+    .btn-secondary { background: var(--gray); color: #555; font-size: 0.8rem;}
+    .btn-secondary:hover { background: #e0e0e0; }
 
-.delete-btn {
-  background: #ff4444;
-  width: auto;
-  padding: 2px 8px;
-  margin: 0;
-  font-size: 0.8em;
-}
+    /* Barra de herramientas (Backup) */
+    .toolbar { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 15px;}
+
+    /* Buscador */
+    .search-box { position: relative; margin-bottom: 15px; }
+    .search-box input { padding-left: 35px; background: var(--gray); border: none;}
+    .search-icon { position: absolute; left: 10px; top: 10px; color: #999; }
+
+    /* Lista */
+    .word-list {
+      max-height: 300px; overflow-y: auto;
+      padding-right: 5px;
+    }
+    /* Scrollbar bonita */
+    .word-list::-webkit-scrollbar { width: 6px; }
+    .word-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+    .word-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px; border-bottom: 1px solid var(--border);
+      background: white; transition: background 0.2s;
+    }
+    .word-item:last-child { border-bottom: none; }
+    .word-item:hover { background: #fffdfd; }
+
+    .word-content { display: flex; flex-direction: column; }
+    .word-main { font-size: 1rem; }
+    .word-meta { font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 5px;}
+    
+    .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+    .tag-cloud { background: #e3f2fd; color: #2196f3; }
+    .tag-local { background: #f5f5f5; color: #777; }
+
+    .delete-btn {
+      background: transparent; color: #ff4444; border: none; font-size: 1.2rem; cursor: pointer;
+      width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .delete-btn:hover { background: #ffebee; }
+    .delete-btn:disabled { color: #ddd; cursor: not-allowed; background: transparent; }

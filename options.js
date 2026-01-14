@@ -11,6 +11,17 @@ document
     document.getElementById("fileInput").click()
   );
 document.getElementById("fileInput").addEventListener("change", importarJSON);
+document
+  .getElementById("inputBuscador")
+  .addEventListener("input", () => setTimeout(filtrarLista, 0));
+
+const inputClave = document.getElementById("inputClave");
+wanakana.bind(inputClave, { IMEMode: true });
+
+const inputBuscador = document.getElementById("inputBuscador");
+wanakana.bind(inputBuscador, { IMEMode: true });
+
+let cacheDiccionarioVisual = null;
 
 function chequearParamsURL() {
   const params = new URLSearchParams(window.location.search);
@@ -29,15 +40,13 @@ function exportarJSON() {
     const dataStr =
       "data:text/json;charset=utf-8," +
       encodeURIComponent(JSON.stringify(result.diccionarioCloud));
-    const downloadAnchorNode = document.createElement("a");
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute(
-      "download",
-      "wanakana_backup_" + new Date().toISOString().slice(0, 10) + ".json"
-    );
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    const a = document.createElement("a");
+    a.href = dataStr;
+    a.download =
+      "wanakana_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   });
 }
 
@@ -49,49 +58,58 @@ function importarJSON(event) {
   reader.onload = (e) => {
     try {
       const contenido = JSON.parse(e.target.result);
-      if (!contenido.sustantivos || !contenido.raicesVerbos)
-        throw new Error("Formato inválido");
-
-      if (
-        confirm(
-          "¿Quieres fusionar este backup con tu diccionario actual? (Las palabras repetidas se actualizarán)"
-        )
-      ) {
+      if (!contenido.sustantivos && !contenido.raicesVerbos)
+        throw new Error("JSON inválido");
+      if (confirm("¿Fusionar backup?")) {
         chrome.storage.sync.get(["diccionarioCloud"], (result) => {
           const actual = result.diccionarioCloud || {
             sustantivos: {},
             raicesVerbos: {},
           };
-
-          // Fusión (Merge)
-          const nuevoDic = {
+          const nuevo = {
             sustantivos: { ...actual.sustantivos, ...contenido.sustantivos },
             raicesVerbos: { ...actual.raicesVerbos, ...contenido.raicesVerbos },
           };
-
-          chrome.storage.sync.set({ diccionarioCloud: nuevoDic }, () => {
-            alert("¡Importación exitosa!");
+          chrome.storage.sync.set({ diccionarioCloud: nuevo }, () => {
+            alert("Importado con éxito");
             cargarPalabras();
           });
         });
       }
     } catch (error) {
-      alert("Error al leer el archivo JSON: " + error.message);
+      alert("Error: " + error.message);
     }
   };
   reader.readAsText(file);
 }
 
 function cargarPalabras() {
+  // Obtener Local
+  const local = window.diccionarioPersonal || {
+    sustantivos: {},
+    raicesVerbos: {},
+  };
+
+  // Obtener Cloud
   chrome.storage.sync.get(["diccionarioCloud"], (result) => {
-    const dic = result.diccionarioCloud || {
+    const cloud = result.diccionarioCloud || {
       sustantivos: {},
       raicesVerbos: {},
     };
-    if (!dic.sustantivos) dic.sustantivos = {};
-    if (!dic.raicesVerbos) dic.raicesVerbos = {};
 
-    renderizarLista(dic);
+    // Preparar datos para renderizar
+    cacheDiccionarioVisual = [];
+
+    // Procesar Locales
+    procesarEntradas(local.sustantivos, "sustantivos", "local");
+    procesarEntradas(local.raicesVerbos, "raicesVerbos", "local");
+
+    // Procesar Cloud
+    procesarEntradas(cloud.sustantivos, "sustantivos", "cloud");
+    procesarEntradas(cloud.raicesVerbos, "raicesVerbos", "cloud");
+
+    // Renderizar
+    renderizarLista(cacheDiccionarioVisual);
   });
 }
 
@@ -116,39 +134,102 @@ function guardarPalabra() {
     chrome.storage.sync.set({ diccionarioCloud: dic }, () => {
       document.getElementById("inputClave").value = "";
       document.getElementById("inputValor").value = "";
-      renderizarLista(dic);
-      console.log("Guardado:", clave, "->", valor);
+      cargarPalabras();
     });
   });
 }
 
 function borrarPalabra(tipo, clave) {
+  if (!confirm(`¿Seguro que quieres borrar la palabra "${clave}"?`)) return;
   chrome.storage.sync.get(["diccionarioCloud"], (result) => {
     const dic = result.diccionarioCloud;
     if (dic && dic[tipo]) {
       delete dic[tipo][clave];
       chrome.storage.sync.set({ diccionarioCloud: dic }, () =>
-        renderizarLista(dic)
+        cargarPalabras()
       );
     }
   });
 }
 
-function renderizarLista(dic) {
+function procesarEntradas(objeto, tipo, fuente) {
+  if (!objeto) return;
+  for (const [clave, valor] of Object.entries(objeto)) {
+    cacheDiccionarioVisual.push({
+      clave,
+      valor,
+      tipo, // sustantivos o raicesVerbos
+      fuente, // local o cloud
+    });
+  }
+}
+
+function renderizarLista(items) {
   const contenedor = document.getElementById("listaPalabras");
   contenedor.innerHTML = "";
 
-  const sustantivos = dic.sustantivos || {};
-  const raices = dic.raicesVerbos || {};
+  // Ordenar: Primero Cloud (lo nuevo), luego Local
+  // Y alfabéticamente dentro de cada grupo
+  items.sort((a, b) => {
+    if (a.fuente !== b.fuente) return a.fuente === "cloud" ? -1 : 1;
+    return a.clave.localeCompare(b.clave);
+  });
 
-  // Renderizar sustantivos
-  for (const [key, value] of Object.entries(sustantivos)) {
-    crearElementoLista(key, value, "sustantivos", contenedor);
+  if (items.length === 0) {
+    contenedor.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">No se encontraron palabras</div>`;
+    return;
   }
-  // Renderizar raíces verbales
-  for (const [key, value] of Object.entries(raices)) {
-    crearElementoLista(key, value, "raicesVerbos", contenedor);
-  }
+
+  items.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "word-item";
+
+    const esLocal = item.fuente === "local";
+    const etiquetaFuente = esLocal
+      ? `<span class="tag tag-local">🔒 Local</span>`
+      : `<span class="tag tag-cloud">☁️ Cloud</span>`;
+
+    const etiquetaTipo = item.tipo === "sustantivos" ? "Exacto" : "Raíz";
+
+    div.innerHTML = `
+      <div class="word-content">
+        <div class="word-main">
+           <strong style="color: #e91e63;">${item.clave}</strong> 
+           <span style="color: #ccc; margin:0 5px;">➔</span> 
+           <strong>${item.valor}</strong>
+        </div>
+        <div class="word-meta">
+           ${etiquetaFuente}
+           <span>• ${etiquetaTipo}</span>
+        </div>
+      </div>
+      <button class="delete-btn" title="${
+        esLocal ? "No se puede borrar el diccionario base" : "Borrar"
+      }">
+        ${esLocal ? "🔒" : "✕"}
+      </button>
+    `;
+
+    const btn = div.querySelector(".delete-btn");
+    if (esLocal) {
+      btn.disabled = true; // Desactivar botón para locales
+    } else {
+      btn.onclick = () => borrarPalabra(item.tipo, item.clave);
+    }
+
+    contenedor.appendChild(div);
+  });
+}
+
+// Buscador
+function filtrarLista() {
+  const texto = document.getElementById("inputBuscador").value.toLowerCase();
+  const filtrados = cacheDiccionarioVisual.filter(
+    (item) =>
+      item.clave.toLowerCase().includes(texto) ||
+      item.valor.toLowerCase().includes(texto)
+  );
+  renderizarLista(filtrados);
 }
 
 function crearElementoLista(key, value, tipo, contenedor) {
