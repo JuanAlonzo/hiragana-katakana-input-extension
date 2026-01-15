@@ -264,10 +264,12 @@ if (typeof window.wanakanaExtensionInyectado === "undefined") {
       console.log("🇯🇵 ON");
       aplicarWanakanaDeTodos();
       iniciarVigilante();
+      mostrarToast("Wanakana Activado 🇯🇵");
     } else {
       console.log("🇯🇵 OFF");
       removerWanakanaDeTodos();
       detenerVigilante();
+      mostrarToast("Wanakana Desactivado 🇯🇵");
     }
   }
   chrome.storage.onChanged.addListener((changes, area) => {
@@ -281,7 +283,44 @@ if (typeof window.wanakanaExtensionInyectado === "undefined") {
   }
   crearSugerenciaBox();
 
-  // Agregar logica
+  // Funcion visual inicial
+  function mostrarToast(mensaje) {
+    const existingToast = document.getElementById("wanakana-toast");
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "wanakana-toast";
+    toast.innerText = mensaje;
+    Object.assign(toast.style, {
+      position: "fixed",
+      top: "20px",
+      right: "20px",
+      padding: "10px 20px",
+      backgroundColor: "#333",
+      color: "#fff",
+      borderRadius: "8px",
+      zIndex: "1000000",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      fontFamily: "sans-serif",
+      fontSize: "14px",
+      opacity: "0",
+      transition: "opacity 0.3s ease",
+      pointerEvents: "none",
+    });
+
+    document.body.appendChild(toast);
+
+    // Animation de entrada
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+    });
+
+    // Desaparecer despues de 2 segundos
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  }
 } else {
   console.log("🇯🇵 Script ya cargado.");
 }

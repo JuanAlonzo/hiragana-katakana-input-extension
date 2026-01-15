@@ -1,6 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
   cargarPalabras();
   chequearParamsURL();
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("onboarding")) {
+    // A futuro cambiar el alert por un modal más elegante
+    alert(
+      "¡Bienvenido a WanaInput! 🌸\n\n1. Usa 'Alt + K' para activar en cualquier web.\n2. Escribe en Romaji para ver Hiragana.\n3. Presiona ESPACIO para convertir a Kanji.\n\n¡Configura aquí tus propias palabras!"
+    );
+    window.history.replaceState({}, document.title, "options.html");
+  }
 });
 
 document.getElementById("btnGuardar").addEventListener("click", guardarPalabra);

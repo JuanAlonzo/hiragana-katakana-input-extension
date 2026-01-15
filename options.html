@@ -9,7 +9,14 @@
 
 <body>
   <header>
-    <h2>🌸 WanaInput</h2>
+    <h2>🌸 WanaInput
+      <small style="font-size: 0.8rem; margin-left: 10px; opacity: 0.6;">v1.0</small>
+    </h2>
+    <nav class="nav-tabs">
+      <div class="nav-item active">Diccionario</div>
+      <div class="nav-item disabled">Estadísticas</div>
+      <div class="nav-item disabled">Logros</div>
+    </nav>
     <div class="toolbar">
       <button id="btnExportar" class="btn btn-secondary">⬇ Backup</button>
       <button id="btnImportar" class="btn btn-secondary">⬆ Restaurar</button>
@@ -21,32 +28,46 @@
 
     <div class="card">
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" style="flex: 2;">
           <label>Hiragana / Raíz</label>
           <input type="text" id="inputClave" placeholder="Ej: はな">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex: 2;">
           <label>Kanji / Resultado</label>
           <input type="text" id="inputValor" placeholder="Ej: 花">
         </div>
+
+        <div class="form-group" style="flex: 1;">
+          <label>Categoría 🔒</label>
+          <select class="input-disabled" disabled>
+            <option>General</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group" style="margin-bottom: 10px;">
-        <label>Tipo de Conversión</label>
-        <select id="tipoEntrada">
-          <option value="sustantivos">Sustantivo / Palabra Exacta</option>
-          <option value="raicesVerbos">Raíz Verbal (Empieza con...)</option>
-        </select>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Conversión</label>
+          <select id="tipoEntrada">
+            <option value="sustantivos">Sustantivo / Palabra Exacta</option>
+            <option value="raicesVerbos">Raíz Verbal (Empieza con...)</option>
+          </select>
+        </div>
       </div>
+
       <button id="btnGuardar" class="btn btn-primary">Guardar en la Nube</button>
     </div>
 
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="inputBuscador" placeholder="Buscar palabra...">
+    <div class="list-container card" style="padding: 0; border: none; background: transparent; box-shadow: none;">
+      <div class="search-box">
+        <input type="text" id="inputBuscador" placeholder="🔍 Buscar palabra..."
+          style="border-radius: 12px 12px 0 0; border: 1px solid var(--border); border-bottom: none; background: var(--surface);">
+      </div>
+
+      <div class="word-list" id="listaPalabras">
+      </div>
     </div>
 
-    <div class="word-list" id="listaPalabras">
-    </div>
   </div>
 
   <script src="wanakana.js"></script>
