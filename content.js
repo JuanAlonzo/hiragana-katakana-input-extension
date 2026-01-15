@@ -33,46 +33,80 @@ if (typeof window.wanakanaExtensionInyectado === "undefined") {
   function buscarCandidato(texto, cursor) {
     const sustantivos = diccionarioUnificado.sustantivos || {};
     const raicesVerbos = diccionarioUnificado.raicesVerbos || {};
-    // Aislando la palabra actual
+
+    // 1. Obtener texto hasta el cursor
     const textoHastaCursor = texto.slice(0, cursor);
-    const ultimoEspacio = textoHastaCursor.lastIndexOf(" ");
-    const palabraOriginal = textoHastaCursor.slice(ultimoEspacio + 1);
 
-    if (!palabraOriginal) return null;
+    // 2. DETECCIÓN: Buscamos la última racha continua de Kanas
+    // Esto captura "はにほん" completo
+    const matchKana = textoHastaCursor.match(
+      /[\u3040-\u309f\u30a0-\u30ff\u30fc]+$/
+    );
 
-    // Buscar match
-    let palabraConvertida = null;
-    let matchTipo = null;
+    if (matchKana) {
+      const rachaCompleta = matchKana[0]; // Ej: "はにほん"
+      const inicioRacha = matchKana.index; // Dónde empieza la 'は'
 
-    // Nivel 1: Exacto
-    if (sustantivos[palabraOriginal]) {
-      palabraConvertida = sustantivos[palabraOriginal];
-      matchTipo = "exacto";
-    }
-    // Nivel 2: Raíz
-    else {
-      const clavesRaices = Object.keys(raicesVerbos).sort(
-        (a, b) => b.length - a.length
-      );
-      for (const raiz of clavesRaices) {
-        if (palabraOriginal.startsWith(raiz)) {
-          const kanji = raicesVerbos[raiz];
-          const resto = palabraOriginal.slice(raiz.length);
-          palabraConvertida = kanji + resto; // Kanji + Okurigana
-          matchTipo = "raiz";
-          break;
+      // 3. ESTRATEGIA DE SUFIJOS:
+      // Probamos desde la frase más larga hasta la más corta.
+      // Ciclo 1: "はにほん" -> Nada
+      // Ciclo 2: "にほん"   -> ¡Match!
+
+      for (let i = 0; i < rachaCompleta.length; i++) {
+        // Cortamos desde 'i' hasta el final
+        const candidato = rachaCompleta.slice(i);
+
+        // --- AQUÍ VA TU LÓGICA DE SIEMPRE ---
+        let palabraConvertida = null;
+        let matchTipo = null;
+
+        // A. Exacto
+        if (sustantivos[candidato]) {
+          palabraConvertida = sustantivos[candidato];
+          matchTipo = "exacto";
+        }
+        // B. Raíz (Verbos)
+        else {
+          const clavesRaices = Object.keys(raicesVerbos).sort(
+            (a, b) => b.length - a.length
+          );
+          for (const raiz of clavesRaices) {
+            if (candidato.startsWith(raiz)) {
+              const kanji = raicesVerbos[raiz];
+              const resto = candidato.slice(raiz.length);
+              palabraConvertida = kanji + resto;
+              matchTipo = "raiz";
+              break;
+            }
+          }
+        }
+
+        // Si encontramos algo, RETORNAMOS INMEDIATAMENTE
+        // Esto asegura que "Yamaguchi" gane a "Yama" (porque probamos el largo primero)
+        if (palabraConvertida) {
+          return {
+            original: candidato,
+            convertida: palabraConvertida,
+            inicio: inicioRacha + i, // Ajustamos el índice real (saltando la partícula 'ha')
+            fin: cursor,
+            tipo: matchTipo,
+          };
         }
       }
-    }
+    } else {
+      // Fallback: Si no hay kana (ej: números romaji o inglés), usamos la lógica de espacios antigua
+      const ultimoEspacio = textoHastaCursor.lastIndexOf(" ");
+      const palabraOriginal = textoHastaCursor.slice(ultimoEspacio + 1);
 
-    if (palabraConvertida) {
-      return {
-        original: palabraOriginal,
-        convertida: palabraConvertida,
-        inicio: ultimoEspacio + 1,
-        fin: cursor,
-        tipo: matchTipo,
-      };
+      if (palabraOriginal && sustantivos[palabraOriginal]) {
+        return {
+          original: palabraOriginal,
+          convertida: sustantivos[palabraOriginal],
+          inicio: ultimoEspacio + 1,
+          fin: cursor,
+          tipo: "exacto",
+        };
+      }
     }
     return null;
   }
