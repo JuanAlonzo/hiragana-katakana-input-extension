@@ -10,14 +10,15 @@
 <body>
   <header>
     <h2>🌸 WanaInput
-      <small style="font-size: 0.8rem; margin-left: 10px; opacity: 0.6;">v1.0</small>
+      <small id="appVersion" style="font-size: 0.8rem; margin-left: 10px; opacity: 0.6;">v0.1.5</small>
     </h2>
     <nav class="nav-tabs">
-      <div class="nav-item active">Diccionario</div>
-      <div class="nav-item disabled">Estadísticas</div>
-      <div class="nav-item disabled">Logros</div>
+      <div id="tabDiccionario" class="nav-item active" data-tab="diccionario">Diccionario</div>
+      <div id="tabEstadisticas" class="nav-item" data-tab="estadisticas">Estadísticas</div>
+      <div id="tabAjustes" class="nav-item" data-tab="ajustes">Configuración</div>
     </nav>
     <div class="toolbar">
+      <button id="btnHistorialBackups" class="btn btn-secondary">🕒 Copias Locales</button>
       <button id="btnExportar" class="btn btn-secondary">⬇ Backup</button>
       <button id="btnImportar" class="btn btn-secondary">⬆ Restaurar</button>
       <input type="file" id="fileInput" style="display: none" accept=".json">
@@ -26,48 +27,175 @@
 
   <div class="container">
 
-    <div class="card">
-      <div class="form-row">
-        <div class="form-group" style="flex: 2;">
-          <label>Hiragana / Raíz</label>
-          <input type="text" id="inputClave" placeholder="Ej: はな">
-        </div>
-        <div class="form-group" style="flex: 2;">
-          <label>Kanji / Resultado</label>
-          <input type="text" id="inputValor" placeholder="Ej: 花">
+    <!-- VISTA DICCIONARIO -->
+    <div id="vista-diccionario" class="tab-view">
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label for="inputClave">Hiragana / Raíz</label>
+            <input type="text" id="inputClave" placeholder="Ej: はな">
+          </div>
+          <div class="form-group" style="flex: 2;">
+            <label for="inputValor">Kanji / Resultado</label>
+            <input type="text" id="inputValor" placeholder="Ej: 花">
+          </div>
+
+          <div class="form-group" style="flex: 1.5;">
+            <label for="selectCategoria">Categoría</label>
+            <select id="selectCategoria">
+              <option value="General">General</option>
+              <option value="Comida">Comida y Bebida</option>
+              <option value="Animales">Animales y Naturaleza</option>
+              <option value="Personas">Personas y Familia</option>
+              <option value="Lugares">Lugares y Viajes</option>
+              <option value="Verbos">Verbos y Acciones</option>
+              <option value="Adjetivos">Adjetivos</option>
+              <option value="Tiempo">Tiempo y Fechas</option>
+              <option value="Numeros">Números</option>
+            </select>
+          </div>
         </div>
 
-        <div class="form-group" style="flex: 1;">
-          <label>Categoría 🔒</label>
-          <select class="input-disabled" disabled>
-            <option>General</option>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tipoEntrada">Tipo de Conversión</label>
+            <select id="tipoEntrada">
+              <option value="sustantivos">Sustantivo / Palabra Exacta</option>
+              <option value="raicesVerbos">Raíz Verbal (Empieza con...)</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="btnGuardar" class="btn btn-primary">Guardar en el Diccionario</button>
+      </div>
+
+      <div class="list-container card" style="padding: 0; border: none; background: transparent; box-shadow: none;">
+        <div class="search-box" style="display: flex; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 12px;">
+          <input type="text" id="inputBuscador" placeholder="🔍 Buscar palabra o kanji..."
+            style="flex: 1; border: none; background: transparent; padding: 8px;">
+          <select id="filtroCategoria" style="width: auto; min-width: 170px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 0.85rem;">
+            <option value="todas">📁 Todas las categorías</option>
+            <option value="General">General</option>
+            <option value="Comida">Comida y Bebida</option>
+            <option value="Animales">Animales y Naturaleza</option>
+            <option value="Personas">Personas y Familia</option>
+            <option value="Lugares">Lugares y Viajes</option>
+            <option value="Verbos">Verbos y Acciones</option>
+            <option value="Adjetivos">Adjetivos</option>
+            <option value="Tiempo">Tiempo y Fechas</option>
+            <option value="Numeros">Números</option>
           </select>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Tipo de Conversión</label>
-          <select id="tipoEntrada">
-            <option value="sustantivos">Sustantivo / Palabra Exacta</option>
-            <option value="raicesVerbos">Raíz Verbal (Empieza con...)</option>
-          </select>
+        <div class="word-list" id="listaPalabras">
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA ESTADÍSTICAS -->
+    <div id="vista-estadisticas" class="tab-view" style="display: none;">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total de Conversiones</div>
+          <div id="statTotalConversiones" class="stat-value">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Palabras Únicas</div>
+          <div id="statPalabrasUnicas" class="stat-value">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Kanji Favorito</div>
+          <div id="statKanjiFavorito" class="stat-value">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Última Actividad</div>
+          <div id="statUltimaActividad" class="stat-value" style="font-size: 1.05rem; padding-top: 6px;">-</div>
         </div>
       </div>
 
-      <button id="btnGuardar" class="btn btn-primary">Guardar en la Nube</button>
+      <div class="ranking-container">
+        <div class="ranking-header">
+          <h4>🏆 Ranking de Kanjis Más Utilizados</h4>
+          <button id="btnReiniciarStats" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px; color: #ff4444;">
+            🗑️ Reiniciar Estadísticas
+          </button>
+        </div>
+        <div id="rankingLista" class="ranking-list">
+          <!-- Renderizado dinámico -->
+        </div>
+      </div>
     </div>
 
-    <div class="list-container card" style="padding: 0; border: none; background: transparent; box-shadow: none;">
-      <div class="search-box">
-        <input type="text" id="inputBuscador" placeholder="🔍 Buscar palabra..."
-          style="border-radius: 12px 12px 0 0; border: 1px solid var(--border); border-bottom: none; background: var(--surface);">
-      </div>
+    <!-- VISTA CONFIGURACIÓN -->
+    <div id="vista-ajustes" class="tab-view" style="display: none;">
+      <div class="card">
+        <div class="settings-group">
+          <div class="setting-item">
+            <div class="setting-desc">
+              <h4>Tecla de Conversión a Kanji (IME)</h4>
+              <p>Selecciona la tecla que transforma tu lectura Hiragana al Kanji sugerido. Con <strong>Enter</strong> puedes escribir oraciones con espacios normalmente sin que se conviertan accidentalmente.</p>
+            </div>
+            <div style="min-width: 240px;">
+              <select id="selectTeclaConversion">
+                <option value="Enter">Enter (Recomendado)</option>
+                <option value="Space">Space (Espacio clásico)</option>
+                <option value="Tab">Tab (Tabulador)</option>
+              </select>
+            </div>
+          </div>
 
-      <div class="word-list" id="listaPalabras">
+          <div class="setting-item">
+            <div class="setting-desc">
+              <h4>Avisos visuales flotantes (Toast)</h4>
+              <p>Muestra una notificación en la esquina de la página al activar o desactivar la extensión con Alt+K.</p>
+            </div>
+            <div>
+              <input type="checkbox" id="checkMostrarToast" checked style="width: 22px; height: 22px; cursor: pointer;">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-desc">
+              <h4>Botón Flotante en Pantalla (FAB)</h4>
+              <p>Muestra un botón circular discreto con el símbolo <strong>あ</strong> en la esquina inferior derecha de cada página para abrir el área de escritura libre (Scratchpad). Si lo desactivas, podrás seguir abriéndolo con <strong>Alt + J</strong>.</p>
+            </div>
+            <div>
+              <input type="checkbox" id="checkMostrarBotonFlotante" checked style="width: 22px; height: 22px; cursor: pointer;">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-desc">
+              <h4>Navegación de Homófonos</h4>
+              <p>Si una lectura coincide con varios Kanjis (ej: 花 y 話 para <em>hana</em>), presiona <strong>Tab</strong> mientras ves la sugerencia para alternar entre ellos.</p>
+            </div>
+            <div>
+              <span class="tag tag-local" style="font-size: 0.85rem; padding: 6px 12px;">Habilitado</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal de Copias de Seguridad Locales -->
+  <div id="modalBackups" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🕒 Copias de Seguridad Locales</h3>
+        <button id="btnCerrarModal" class="btn-close">&times;</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 16px 0;">
+        WanaInput guarda automáticamente instantáneas de tu diccionario antes de cada cambio o importación para que nunca pierdas tus palabras.
+      </p>
+      <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
+        <button id="btnCrearBackupManual" class="btn btn-secondary" style="font-size: 0.82rem; padding: 6px 12px;">+ Crear Copia Ahora</button>
+      </div>
+      <div id="listaBackups" class="backup-list">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
   </div>
 
   <script src="wanakana.js"></script>

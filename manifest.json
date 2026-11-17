@@ -1,13 +1,22 @@
 {
   "manifest_version": 3,
   "name": "WanaInput - Japonés Fácil",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Metodo de entrada japonés que convierte romaji a hiragana/katakana y kanji usando Wanakana.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
-    "contextMenus"
+    "contextMenus",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "commands": {
     "toggle-wanakana": {
@@ -16,8 +25,21 @@
         "mac": "Alt+K"
       },
       "description": "Activar/Desactivar WanaKana"
+    },
+    "open-scratchpad": {
+      "suggested_key": {
+        "default": "Alt+J",
+        "mac": "Alt+J"
+      },
+      "description": "Abrir barra flotante de escritura libre"
     }
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["wanakana.js", "vocabulario.js", "content.js"]
+    }
+  ],
   "action": {
     "default_title": "Activar WanaKana (Clic o Alt+K)"
   },
